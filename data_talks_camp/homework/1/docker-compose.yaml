@@ -1,0 +1,19 @@
+services:
+  hwdb:
+    image: postgres:15.3-alpine3.18
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ny_green_data
+    volumes:
+      - "./green:/var/lib/postgresql/data:rw"
+    ports:
+      - "5432:5432"
+  hwadmin:
+     image: dpage/pgadmin4
+     environment:
+        - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+        - PGADMIN_DEFAULT_PASSWORD=password
+     ports:
+        - "8080:80"
+     volumes:
+        - "./pgadmindata:/var/lib/pgadmin:rw"
