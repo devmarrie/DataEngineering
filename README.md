@@ -255,3 +255,10 @@ ROW_NUMBER() assigns a row a particular value even if their values are the same.
 Case statements can also be placed inside aggregate functions eg `COUNT(CASE WHEN val=1 THEN 1 ELSE 0 END)`
 
 A lookup table stores values and definations(PK) that can be refferenced by other tables(FK) it can be used instead of many case when statements.
+
+### Data Quality
+Ensuring the data produced is not eronius.
+This can be done using the following techniques
+**WAP** (Write Audit Publish) Write to a staging table. Audit to ensure it passes the data quality checks set . If it does publish to production. This ensures data posted to production is of the expected quality, but many checks might cause the dq to be affected hence fail to publish. 
+
+**SignalTablePattern** Tis entails pushing the data to production then running the audits. Once they pass signal downstream users to use the data. This also has its cons as downstream users are likely to fetch data that is not yet audited.
