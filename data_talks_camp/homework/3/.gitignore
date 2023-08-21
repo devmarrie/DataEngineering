@@ -2,3 +2,4 @@ flow
 fhv_tripdata_2019-01.csv
 data
 .~lock.fhv_tripdata_2019-01.csv#
+requirements.txt
