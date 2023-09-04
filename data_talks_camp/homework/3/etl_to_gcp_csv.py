@@ -25,19 +25,19 @@ def fetch_data_csv(dataset_url: str, path: Path) -> Path:
     return chunk_path
     
 
-# @task()
-# def read_in_batches_csv(month: int) -> None:
-#     """Upload local csv file to GCS"""
-#     gcs_block = GcsBucket.load("my-nyc-taxi-bucket")
-#     folder = "data/2019_csv"
-#     start = f"fhv_{month:02}"
-#     if os.path.exists(folder) and os.path.isdir(folder):
-#         for file in os.listdir(folder):
-#             file_path = os.path.join(folder, file)
-#             if file.startswith(start):
-#                 print(f"Uploading: {file} to {file_path}")
-#                 gcs_block.upload_from_path(from_path=file_path, to_path=file_path)
-#     return
+@task()
+def read_in_batches_csv(month: int) -> None:
+    """Upload local csv file to GCS"""
+    gcs_block = GcsBucket.load("my-nyc-taxi-bucket")
+    folder = "data/2019_csv"
+    start = f"fhv_{month:02}"
+    if os.path.exists(folder) and os.path.isdir(folder):
+        for file in os.listdir(folder):
+            file_path = os.path.join(folder, file)
+            if file.startswith(start):
+                print(f"Uploading: {file} to {file_path}")
+                gcs_block.upload_from_path(from_path=file_path, to_path=file_path)
+    return
 
 
 
@@ -46,17 +46,17 @@ def web_to_gcs_flow_csv(month: int) -> None:
     """The main ETL function"""
     path = Path(f"data/2019_csv/fhv_{month:02}.csv.gz")
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/fhv_tripdata_2019-{month:02}.csv.gz"
-    fetch_data_csv(dataset_url, path)
-    # read_in_batches_csv(month)
+    # fetch_data_csv(dataset_url, path)
+    read_in_batches_csv(month)
     
 
-# @flow()
-# def multiple_mnths_csv():
-#     months = [1,2,3,4,5,6,7,8,9,10,11,12]
-#     for month in months:
-#         web_to_gcs_flow_csv(month)
+@flow()
+def multiple_mnths_csv():
+    months = [2,3,4,5,6,7,8,9,10,11,12]
+    for month in months:
+        web_to_gcs_flow_csv(month)
 
 
 if __name__ == "__main__":
-    web_to_gcs_flow_csv(1)
+    multiple_mnths_csv()
     
