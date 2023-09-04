@@ -52,7 +52,7 @@ def web_to_gcs_flow_csv(month: int) -> None:
 
 @flow()
 def multiple_mnths_csv():
-    months = [2,3,4,5,6,7,8,9,10,11,12]
+    months = [3,4,5,6,7,8,9,10,11,12]
     for month in months:
         web_to_gcs_flow_csv(month)
 
