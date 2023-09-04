@@ -31,31 +31,20 @@ from datetime import timedelta
 #     return chunk_path
     
 
-# @task()
-# def read_in_batches_csv(path: Path, month: int) -> None:
-#     """Upload local csv file to GCS"""
-#     gcs_block = GcsBucket.load("my-nyc-taxi-bucket")
-#     folder = "data/2019_csv"
-#     start = f"fhv_{month:02}"
-#     if os.path.exists(folder) and os.path.isdir(folder):
-#         for file in os.listdir(folder):
-#             file_path = os.path.join(folder, file)
-#             if file.startswith(start):
-#                 print(f"Uploading: {file} to {path}")
-#                 gcs_block.upload_from_path(from_path=file_path, to_path=path)
-#     return
-
-
 @task()
-def read_in_batches_csv() -> None:
-    """Upload local parquet file to GCS"""
+def read_in_batches_csv(month: int) -> None:
+    """Upload local csv file to GCS"""
     gcs_block = GcsBucket.load("my-nyc-taxi-bucket")
     folder = "data/2019_csv"
+    start = f"fhv_{month:02}"
     if os.path.exists(folder) and os.path.isdir(folder):
         for file in os.listdir(folder):
             file_path = os.path.join(folder, file)
-            gcs_block.upload_from_path(from_path=file_path, to_path=file_path)
+            if file.startswith(start):
+                print(f"Uploading: {file} to {file_path}")
+                gcs_block.upload_from_path(from_path=file_path, to_path=file_path)
     return
+
 
 
 @flow()
@@ -64,7 +53,7 @@ def web_to_gcs_flow_csv(month: int) -> None:
     path = Path(f"data/2019_csv/fhv_{month:02}.csv.gz")
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/fhv_tripdata_2019-{month:02}.csv.gz"
     # fetch_data_csv(dataset_url, path)
-    read_in_batches_csv()
+    read_in_batches_csv(month)
     
 
 # @flow()
@@ -75,5 +64,5 @@ def web_to_gcs_flow_csv(month: int) -> None:
 
 
 if __name__ == "__main__":
-    web_to_gcs_flow_csv(1)
+    web_to_gcs_flow_csv(2)
     
