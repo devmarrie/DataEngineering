@@ -46,13 +46,13 @@ def web_to_gcs_flow_csv(month: int) -> None:
     """The main ETL function"""
     path = Path(f"data/2019_csv/fhv_{month:02}.csv.gz")
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/fhv_tripdata_2019-{month:02}.csv.gz"
-    # fetch_data_csv(dataset_url, path)
+    fetch_data_csv(dataset_url, path)
     read_in_batches_csv(month)
     
 
 @flow()
 def multiple_mnths_csv():
-    months = [3,4,5,6,7,8,9,10,11,12]
+    months = [1,2,3,4,5,6,7,8,9,10,11,12]
     for month in months:
         web_to_gcs_flow_csv(month)
 
