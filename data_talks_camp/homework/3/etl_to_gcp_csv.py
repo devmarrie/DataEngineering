@@ -20,7 +20,7 @@ def fetch_data_csv(dataset_url: str, path: Path) -> Path:
         chunk_path = Path(f'data/2019_csv/{file_name}_chunk_{i}.csv.gz')
         chunk.pickup_datetime = pd.to_datetime(chunk.pickup_datetime)
         chunk.dropOff_datetime = pd.to_datetime(chunk.dropOff_datetime)
-        chunk.to_csv(chunk_path, index=False, header=False, mode='a', compression='gzip')
+        chunk.to_csv(chunk_path, index=False, header=True, mode='a', compression='gzip')
         print(f'Inserted chunk {i+1}')
     return chunk_path
     
@@ -52,7 +52,7 @@ def web_to_gcs_flow_csv(month: int) -> None:
 
 @flow()
 def multiple_mnths_csv():
-    months = [1,2,3,4,5,6,7,8,9,10,11,12]
+    months = [11,12]
     for month in months:
         web_to_gcs_flow_csv(month)
 
