@@ -16,45 +16,47 @@ def fetch(url):
     os.system(f'wget {url} -O {csv_name}')
     return csv_name
 
-@task(retries=3, log_prints=True)
-def extract_transform_load_to_path(dataset_url: str) -> Path:
+@task(log_prints=True)
+def extract_transform_load_to_path(dataset_url: str, path: Path) -> Path:
     """Once data has been fetched from url, it reads the data"""
-    df_chunk = pd.read_csv(dataset_url, iterator=True, chunksize=50000)
-    path = Path('data/yellow.parquet')
-    df = next(df_chunk)
-    df["tpep_pickup_datetime"]	= pd.to_datetime(df["tpep_pickup_datetime"])
-    df["tpep_dropoff_datetime"] = pd.to_datetime(df["tpep_dropoff_datetime"])
-    print("First chunk")
-    df.to_parquet(path, compression="gzip")
-    
-    while True:
-        try:
-           df = next(df_chunk)
-           df["tpep_pickup_datetime"]	= pd.to_datetime(df["tpep_pickup_datetime"])
-           df["tpep_dropoff_datetime"] = pd.to_datetime(df["tpep_dropoff_datetime"])
-           print("Inserted another batch")
-           df.to_parquet(path, compression="gzip")
-        except StopIteration:
-            print(f"The whole dataset has been loaded succesfully to {path}")
-            break
-    return path
+    df_chunks = pd.read_csv(dataset_url, compression='gzip', iterator=True, chunksize=50000)
+ 
+    pth = path.stem
+    file_name = pth.split(".")[0]
+    for i, chunk in enumerate(df_chunks):
+        chunk_path = f'data/green/{file_name}_chunk_{i}.parquet.gz'
+        chunk["lpep_pickup_datetime	"]	= pd.to_datetime(chunk["lpep_pickup_datetime"])
+        chunk["lpep_dropoff_datetime"] = pd.to_datetime(chunk["lpep_dropoff_datetime"])
+        chunk.to_parquet(chunk_path, index=False, compression='gzip')
+        print(f'Inserted chunk {i+1}')
+    print('After insertion:')
+    return chunk_path
 
 @task()
-def load(path: Path):
+def load(path: Path, color: str, year: int, month: int):
     """Load the google cloud storage bucket """
+    folder = "data/green"
+    start = f"{color}_tripsdata_{year}_{month:02}"
     cloud_bucket = GcsBucket.load("my-nyc-taxi-bucket")
-    cloud_bucket.upload_from_path(from_path=path, to_path=path)
+
+    if os.path.exists(folder) and os.path.isdir(folder):
+        for file in os.listdir(folder):
+            file_path = os.path.join(folder, file)
+            if file.startswith(start):
+                print(f"Uploading: {file} to {file_path}")
+                cloud_bucket.upload_from_path(from_path=file_path, to_path=file_path)
     return
 
 @flow()
 def web_to_gcp(month: int, color: str, year: int) -> None:
     """Loads data to the data lake"""
     dataset_file = f"{color}_tripdata_{year}-{month:02}"
+    path =  Path(f"data/{color}_tripsdata_{year}_{month:02}.parquet.gz")
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{dataset_file}.csv.gz"
 
-    data = fetch(dataset_url)
-    extract_transform_load_to_path(data)
-    # load(trans)
+    # data = fetch(dataset_url)
+    # extract_transform_load_to_path(data, path)
+    load(path,color, year, month)
 
 @flow()
 def diff_months(months: list[int] = [1, 2], year: int = 2019, color: str = "yellow"):
@@ -63,7 +65,7 @@ def diff_months(months: list[int] = [1, 2], year: int = 2019, color: str = "yell
         web_to_gcp(month, color, year)
 
 if __name__ == '__main__':
-    color = "yellow"
-    year = 2021
-    months = [1,2,3]
+    color = "green"
+    year = 2019
+    months = [8,9,10]
     diff_months(months, year, color)
