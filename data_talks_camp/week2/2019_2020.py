@@ -54,8 +54,8 @@ def web_to_gcp(month: int, color: str, year: int) -> None:
     path =  Path(f"data/{color}_tripsdata_{year}_{month:02}.parquet.gz")
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{dataset_file}.csv.gz"
 
-    # data = fetch(dataset_url)
-    # extract_transform_load_to_path(data, path)
+    data = fetch(dataset_url)
+    extract_transform_load_to_path(data, path)
     load(path,color, year, month)
 
 @flow()
@@ -66,6 +66,6 @@ def diff_months(months: list[int] = [1, 2], year: int = 2019, color: str = "yell
 
 if __name__ == '__main__':
     color = "green"
-    year = 2019
-    months = [8,9,10]
+    year = 2020
+    months = [11, 12]
     diff_months(months, year, color)
