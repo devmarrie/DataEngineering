@@ -25,7 +25,7 @@ def extract_transform_load_to_path(dataset_url: str, path: Path) -> Path:
     file_name = pth.split(".")[0]
     for i, chunk in enumerate(df_chunks):
         chunk_path = f'data/green/{file_name}_chunk_{i}.parquet.gz'
-        chunk["lpep_pickup_datetime	"]	= pd.to_datetime(chunk["lpep_pickup_datetime"])
+        chunk["lpep_pickup_datetime"]	= pd.to_datetime(chunk["lpep_pickup_datetime"])
         chunk["lpep_dropoff_datetime"] = pd.to_datetime(chunk["lpep_dropoff_datetime"])
         chunk.to_parquet(chunk_path, index=False, compression='gzip')
         print(f'Inserted chunk {i+1}')
