@@ -6,3 +6,4 @@ head_1000.parquet
 fhvhv_tripdata_2021-01.parquet
 taxi+_zone_lookup.csv
 data
+lib
