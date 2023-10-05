@@ -1,0 +1,8 @@
+five
+jdk-11.0.1
+spark-3.3.3-bin-hadoop3
+zones
+head_1000.parquet
+fhvhv_tripdata_2021-01.parquet
+taxi+_zone_lookup.csv
+data
