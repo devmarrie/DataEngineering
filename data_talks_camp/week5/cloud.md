@@ -79,3 +79,15 @@ gcloud dataproc jobs submit pyspark \
         --input_green=gs://dtc_data_lake_arcane-grin-394118/pq/green/2021/*/ \
         --input_yellow=gs://dtc_data_lake_arcane-grin-394118/pq/yellow/2021/*/ \
         --output=trips_data_all.reports-2020
+
+
+
+schema = StructType([
+    types.StructField('dispatching_base_num', types.StringType(), True),
+    types.StructField('pickup_datetime', types.TimestampType(), True),
+    types.StructField('dropoff_datetime', types.TimestampType(), True),
+    types.StructField('PULocationID', types.LongType(), True),
+    types.StructField('DOLocationID', types.LongType(), True),
+    types.StructField('SR_Flag', types.StringType(), True),
+    types.StructField('Affiliated_base_number', types.StringType(), True)
+])
