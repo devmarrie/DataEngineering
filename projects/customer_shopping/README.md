@@ -1,0 +1,3 @@
+Customer shopping trends. This dataset encompasses various features related to customer 
+shopping preferences, gathering essential information for businesses seeking to enhance their 
+understanding of their customer base This dataset is a synthetic creation generated using ChatGPT to simulate a realistic customer shopping experience. Its purpose is to provide a platform for beginners and data enthusiasts, allowing them to create, enjoy, practice, and learn from a dataset that mirrors real-world customer shopping behavior.
