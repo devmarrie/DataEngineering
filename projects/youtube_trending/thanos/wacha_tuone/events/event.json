@@ -1,0 +1,14 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "youtube-raw-carlifonia-dev"
+        },
+        "object": {
+          "key": "data/raw_statistics_reference_data/CA_category_id.json"
+        }
+      }
+    }
+  ]
+}

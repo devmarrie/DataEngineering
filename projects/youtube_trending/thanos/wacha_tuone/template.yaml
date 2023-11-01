@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 300
+      Environment:
+        Variables:
+          s3_cleansed_layer: s3://youtube-raw-carlifonia-dev-clensed/data #s3://youtube-raw-carlifonia-dev-clensed/data
+          glue_catalog_db_name: youtube-clean-carlifonia-database
+          glue_catalog_table_name: cleaned_statistics_reference_data
+          write_data_operation: append
+  #     Layers:
+  #       - !Ref MyLayer
+
+  # MyLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Properties:
+  #     Description: My layer for awswrangler
+  #     LayerName: MyLayer
+  #     ContentUri: lambda_layer/my_layer.zip
+
