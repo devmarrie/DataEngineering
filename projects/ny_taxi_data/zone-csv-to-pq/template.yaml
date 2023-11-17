@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  zone-csv-to-pq
+
+  Change the csv zones file to pq for zone-csv-to-pq
+Resources:
+  ZonesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: code_base/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 300
+      Environment:
+        Variables:
+          s3_cleansed_layer: s3://nytaxi-data-raw-us-east-airflow-dev-clensed/data/zones #s3://nytaxi-data-raw-us-east-airflow-dev-clensed/data
+          glue_catalog_db_name: nytaxi-data-raw-us-east-airflow-clean-database
+          glue_catalog_table_name: zones
+          write_data_operation: append
+      Architectures:
+      - x86_64
