@@ -24,7 +24,7 @@ def lambda_handler(event, context):
 
         # Write to S3
         wr_response = wr.s3.to_parquet(
-            df=df_step_1,
+            df=df_step_1,   
             path=os_input_s3_cleansed_layer,
             dataset=True,
             database=os_input_glue_catalog_db_name,
