@@ -12,7 +12,7 @@ os_input_write_data_operation = os.environ['write_data_operation']
 def lambda_handler(event, context):
     # get the bucket and its value
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
-    key = urllib.parse.quote_plus(event["Records"][0]["s3"]["object"]["key"], encoding='utf-8')
+    key = urllib.parse.unquote_plus(event["Records"][0]["s3"]["object"]["key"], encoding='utf-8')
 
     try:
         # create a dataframe
