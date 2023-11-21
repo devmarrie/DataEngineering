@@ -6,7 +6,7 @@
           "name": "nytaxi-data-raw-us-east-airflow-dev"
         },
         "object": {
-          "key": "data/zones/taxi+_zone_lookup(1).csv"
+          "key": "data/zones/taxi_zone_lookup.csv"
         }
       }
     }
