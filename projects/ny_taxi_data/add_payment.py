@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import pyarrow.parquet as pq
 import pyarrow as pa
 import io
+import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
@@ -21,22 +22,25 @@ def transform(ti, sql_path: str) -> str:
     """Read the data and store it in a pyarrow table"""
     download_file_name = ti.xcom_pull(task_ids='retrieve_from_src')
     table = pq.read_table(download_file_name)
+    df = table.to_pandas()
 
-    if table['payment_type'] == 1.0:
-        table = table.set_column('payment_mthd', pa.array(['credit card']))
-    elif table['payment_type'] == 2.0:
-        table = table.set_column('payment_mthd', pa.array(['cash']))
-    elif table['payment_type'] == 3.0:
-        table = table.set_column('payment_mthd', pa.array(['no charge']))
-    elif table['payment_type'] == 4.0:
-        table = table.set_column('payment_mthd', pa.array(['dispute']))
-    elif table['payment_type'] == 5.0:
-        table = table.set_column('payment_mthd', pa.array(['unknown']))
-    elif table['payment_type'] == 6.0:
-        table = table.set_column('payment_mthd', pa.array(['voided trip']))
-    pq.write_table(table, sql_path)
+    df['payment_method'] = df['payment_type'].map({
+        1.0: 'credit card',
+        2.0: 'cash',
+        3.0: 'no charge',
+        4.0: 'dispute',
+        5.0: 'unknown',
+        6.0: 'voided trip'
+    })  
+
+    df.to_parquet(sql_path, compression='gzip', index=False)  
     return sql_path
-    
+
+def load_to_clean(sql_path: str, clean_key: str, clean_bucket: str):    
+    """Load to a clean s3 bucket"""
+    # filename = ti.xcom_pull(task_ids='sql_trans')
+    hook = S3Hook('airflow_aws_s3_conn')
+    hook.load_file(filename=sql_path, bucket_name=clean_bucket, key=clean_key,)
 
 default_args = {
     'owner': 'marrie',
@@ -60,6 +64,8 @@ dest = f'/home/devmarrie/airflow/data/cl/'
 bucket_name = 'nytaxi-data-raw-us-east-airflow-dev'
 key = 'data/yellow/yellow_tripdata_2020-01.parquet.gz'
 sql_path = '/home/devmarrie/airflow/data/sql/yellow_tripdata_2020-01.parquet.gz'
+clean_bucket = 'nytaxi-data-raw-us-east-airflow-dev-clensed'
+clean_key = 'data/yellow/yellow_tripdata_2020-01.parquet.gz'
 
 task_from_source = PythonOperator(
     task_id='retrieve_from_src',
@@ -74,10 +80,21 @@ task_from_source = PythonOperator(
 
 
 task_to_pa_table = PythonOperator(
-    task_id='to_a_table',
+    task_id='sql_trans',
     python_callable=transform,
     op_kwargs= {
         'sql_path': sql_path
+    },
+    dag=dag
+)
+
+task_load_clensed_data = PythonOperator(
+    task_id='load_clean_data',
+    python_callable=load_to_clean,
+    op_kwargs= {
+        'sql_path': sql_path,
+        'clean_key': clean_key,
+        'clean_bucket': clean_bucket
     },
     dag=dag
 )
