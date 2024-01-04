@@ -1,38 +1,56 @@
-import pandas as pd
-from urllib.parse import urlparse
-import os
-import s3fs
-import logging
-import pyarrow.csv as pv
-import pyarrow.parquet as pq
-from pathlib import Path
-
-# def fetch(url: str) -> str:
-#     """Downloaading the dataset"""
-#     parsed_url = urlparse(url)
-#     # print(parsed_url)     
-#     file_name = os.path.basename(parsed_url.path)
-#     # print(f'file_name: {file_name}')
-#     if url.endswith('.csv.gz'):
-#         csv_name = f'./data/{file_name}'
-#     else:
-#         csv_name = f'./data/{file_name}'
-#     # os.system(f'wget {url} -O {csv_name}')
-#     # return csv_name
-#     df = pd.read_csv(url)
-#     df.to_csv(f's3://nytaxi-data-raw-us-east-1-dev/{csv_name}')
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.bash  import BashOperator
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 
+def load(local_path:str, key: str, bucket_name:str):
+    """Load the data to our s3 bucket"""
+    hook = S3Hook('airflow_aws_s3_conn')
+    hook.load_file(filename=local_path, bucket_name=bucket_name, key=key)
 
-def read_from_source(filename: str):
-    """Convert the csv file to pq"""
-    # if not filename.endswith('csv.gz'):
-    #     logging.error("Can only accept csv format at the momment")
-    table = pv.read_csv(filename)
-    pq.write_table(table, filename.replace('.csv', '.parquet'))
 
-if __name__ == '__main__':
-    data_file = 'yellow_tripdata_2021-05.csv.gz'
-    url = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/{data_file}'
-    filename = f'data/{data_file}'
-    read_from_source(filename)
+default_args = {
+    'owner': 'your_name',
+    'start_date': datetime(2023, 11, 1),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5)
+}
+
+dag = DAG(
+    'data_model_sample',
+    default_args=default_args,
+    description='following the data model',
+    schedule_interval='@daily',
+    catchup=False,
+    max_active_runs=1,
+    tags=['star_schema']
+)
+
+year = 2020
+month = 1
+data_file = f'yellow_tripdata_{year}-{month:02}.csv.gz'
+local_path = f'/home/devmarrie/airflow/data/csv/{data_file}'
+url = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/{data_file}'
+bucket_name = 'nytaxi-data-raw-us-east-airflow-dev'
+key = f'data/yellow/{data_file}'
+
+task_read_from_source = BashOperator(
+    task_id=f'read_from_source',
+    bash_command=f'curl -sSL {url} -o {local_path} && echo "Download successful!" || echo "Download failed"',
+    dag=dag
+    )
+
+task_load_to_s3 = PythonOperator(
+    task_id='load_the_csv',
+    python_callable=load,
+    op_kwargs={
+        'local_path': local_path,
+        'key': key,
+        'bucket_name': bucket_name
+    },
+    dag=dag
+)
+
+task_read_from_source >> task_load_to_s3
