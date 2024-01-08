@@ -17,7 +17,7 @@ default_args = {
 def produce_stream():
     df = pd.read_csv('data/TSLA_20-24.csv')
     record = df.sample(1).to_dict(orient="records")[0]
-    producer = KafkaProducer(bootstrap_servers=['localhost:9092'], max_block_ms=5000)
+    producer = KafkaProducer(bootstrap_servers=['broker:29092'], max_block_ms=5000)
     producer.send('daily_stock_prices', json.dumps(record).encode('utf-8'))
 
 
@@ -34,4 +34,4 @@ with DAG('produce_stock_data',
         python_callable=produce_stream
     )
 
-produce_stream()
+# produce_stream()
