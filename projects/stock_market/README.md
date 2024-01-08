@@ -24,7 +24,19 @@ Tesla is ranked as the highest stock in the Nasdaq stock market, as shown in the
 - Docker(for deployment of pipelines)
 
 ### Dependancies
-what is this project dependant on to run successfully
+- Docker
 
+### Running the application
+- docker build -t kafka-spark-setup .
+- docker run kafka-spark-setup (builds and runs the application)
+- docker run -p 9092:9092 -p 2181:2181 kafka-spark-setup (This maps the container's ports 9092 (Kafka) and 2181 (ZooKeeper) to the same ports on your host machine for ease of access to external services)
+
+*To run the docker compose*
+- docker compose up -f docker_compose.yaml -up -d
+- docker images
+- docker ps
+- docker excec -it kafka bin/sh 
+- cd / then cd bin 
+then move to the opt directory(move to that kafka version then bin to view the commands)
 
 
