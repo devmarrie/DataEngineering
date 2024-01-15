@@ -1,4 +1,6 @@
 #!/bin/bash
+export GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+export AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT=${AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT}
 
 set -e
 
@@ -6,6 +8,8 @@ if [ -e "/opt/airflow/requirements.txt" ]; then
   $(command python) pip install --upgrade pip
   $(command -v pip) install --user -r requirements.txt
 fi
+
+
 
 # Initialize database if needed
 if [ ! -f "/opt/airflow/airflow.db" ]; then
