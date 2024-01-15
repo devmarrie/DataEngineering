@@ -39,4 +39,54 @@ Tesla is ranked as the highest stock in the Nasdaq stock market, as shown in the
 - cd / then cd bin 
 then move to the opt directory(move to that kafka version then bin to view the commands)
 
+*Google setup*
+- Install terraform from [here] (https://www.terraform.io/downloads)
+- Create a  new project in gcp
+- Create a new service account in IAM ADMIN and generate a new key in the manage keys
+- Download gcoud SDK to access google from the terminal using the [following link](https://cloud.google.com/sdk/docs/install-sdk) 
+- export GOOGLE_APPLICATION_CREDENTIALS="<path/to/your/service-account-authkeys>.json"
+- Use this command to autenticate **gcloud auth application-default login**
+- Go to IAM , the service account we createdd above and edit its roles to add Storage Admin, Storage Object Admin (to acces cloud storage) and Big Query Admin .
+
+- Enable these APIs for your project:
+
+    https://console.cloud.google.com/apis/library/iam.googleapis.com
+
+    https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com
+
+- Terraform excecution
+```
+# Refresh service-account's auth-token for this session
+gcloud auth application-default login
+
+# Initialize state file (.tfstate)
+terraform init
+
+# Check changes to new infra plan
+terraform plan -var="project=<your-gcp-project-id>"
+
+# Create new infra
+terraform apply -var="project=<your-gcp-project-id>"
+
+# Delete infra after your work, to avoid costs on any running services
+terraform destroy
+```
+
+-- Big query setup with airflow
+cd ~ && mkdir -p ~/.google/credentials/
+mv <path/to/your/service-account-authkeys>.json ~/.google/credentials/google_credentials.json
+
+Access a running container
+```
+docker exec -it <container_name> bash
+gcloud --version
+```
+
+- Pyspark config
+```
+pip install spark pyspark
+```
+
+
+
 
