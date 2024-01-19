@@ -1,8 +1,9 @@
 #!/bin/bash
-export GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
-export AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT=${AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT}
 
 set -e
+
+# Activate the service account
+gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}" --project="${PROJECT_ID}"
 
 if [ -e "/opt/airflow/requirements.txt" ]; then
   $(command python) pip install --upgrade pip
@@ -32,6 +33,12 @@ if ! airflow users list | grep -q '^admin'; then
     --email admin@example.com \
     --password admin
 fi
+
+# Create GCP connection   <-- Add here
+airflow connections add 'my_gcp_connection' \
+  --conn-type 'google_cloud_platform' \
+  --conn-extra '{"extra__google_cloud_platform__project": "tesla-stocks-410911"}'
+
 
 # Upgrade database schema
 $(command -v airflow) db upgrade
