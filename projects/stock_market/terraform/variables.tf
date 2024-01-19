@@ -1,11 +1,11 @@
 variable "credentials" {
     description = "My Credentials"
-    default = "./credentials/tesla-stocks-410911-c875b633dff5.json"
+    default = "./credentials/google_cred.json"
 }
 
 variable "project" {
   description = "Project"
-  default     = "tesla-stocks-410911"
+  default     = "your_proj_id
 }
 
 variable "region" {
