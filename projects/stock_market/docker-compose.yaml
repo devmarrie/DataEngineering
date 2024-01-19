@@ -114,23 +114,17 @@ services:
       - EXECUTOR=Sequential
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
-      - GOOGLE_APPLICATION_CREDENTIALS=/.google/credentials/tesla-stocks-410911-c875b633dff5.json
-      - AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT='google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/tesla-stocks-410911-c875b633dff5.json'
-
-      # TODO: Please change GCP_PROJECT_ID & GCP_GCS_BUCKET, as per your config
-      - GCP_PROJECT_ID='tesla-stocks-410911'
-      - GCP_GCS_BUCKET='tesla_stocks_bucket'
-      - GCP_GCS_DATASET='tesla_stocks_dataset'
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/credentials/tesla-stocks-410911-c875b633dff5.json
+      - PROJECT_ID=tesla-stocks-410911
     logging:
       options:
         max-size: 10m
         max-file: "3"
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./data:/opt/airflow/data
-      - ~/.google/credentials/:/.google/credentials:ro
       - ./scripts/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - ~/.google/credentials:/opt/airflow/credentials:ro
     ports:
       - "8080:8080"
     healthcheck:
@@ -148,22 +142,16 @@ services:
         condition: service_healthy
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./data:/opt/airflow/data
-      - ~/.google/credentials/:/.google/credentials:ro
       - ./scripts/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - ~/.google/credentials:/opt/airflow/credentials:ro
     environment:
       - LOAD_EX=n
       - EXECUTOR=Sequential
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW_WEBSERVER_SECRET_KEY=this_is_a_very_secured_key
-      - GOOGLE_APPLICATION_CREDENTIALS=/.google/credentials/tesla-stocks-410911-c875b633dff5.json
-      - AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT='google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/tesla-stocks-410911-c875b633dff5.json'
-
-      # TODO: Please change GCP_PROJECT_ID & GCP_GCS_BUCKET, as per your config
-      - GCP_PROJECT_ID='tesla-stocks-410911'
-      - GCP_GCS_BUCKET='tesla_stocks_bucket'
-      - GCP_GCS_DATASET='tesla_stocks_dataset'
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/credentials/tesla-stocks-410911-c875b633dff5.json
+      - PROJECT_ID=tesla-stocks-410911
     command: bash -c "pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"
     networks:
       - confluent
