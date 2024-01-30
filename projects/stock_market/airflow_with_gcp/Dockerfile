@@ -5,8 +5,13 @@ FROM apache/airflow:2.8.0-python3.9
 ENV AIRFLOW_HOME=/opt/airflow
 
 USER root
-RUN apt-get update -qq && apt-get install vim -qqq
+RUN apt-get update -qq && \
+    apt-get install vim procps -qqq && \
+    apt-get install -y default-jdk
+
 # git gcc g++ -qqq
+# Set Java Home environment variable
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # COPY requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
