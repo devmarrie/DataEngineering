@@ -10,6 +10,16 @@ if [ -e "/opt/airflow/requirements.txt" ]; then
   $(command -v pip) install --user -r requirements.txt
 fi
 
+# Print environment variables for debugging
+echo "Environment Variables before setting JAVA_HOME:"
+env
+
+# Add these lines to set JAVA_HOME
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Print environment variables after setting JAVA_HOME
+echo "Environment Variables after setting JAVA_HOME:"
+env
 
 
 # Initialize database if needed
