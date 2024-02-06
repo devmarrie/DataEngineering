@@ -122,7 +122,7 @@ services:
         max-file: "3"
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./data/TSLA_20-24.csv:/opt/airflow/data
+      - ./data/TSLA_20-24.csv:/opt/airflow/data/TSLA_20-24.csv
       - ./scripts/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
       - ~/.google/credentials:/opt/airflow/credentials:ro
@@ -143,7 +143,7 @@ services:
         condition: service_healthy
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./data/TSLA_20-24.csv:/opt/airflow/data
+      - ./data/TSLA_20-24.csv:/opt/airflow/data/TSLA_20-24.csv
       - ./scripts/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
       - ~/.google/credentials:/opt/airflow/credentials:ro
