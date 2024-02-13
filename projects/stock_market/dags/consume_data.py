@@ -41,8 +41,17 @@ def connect_to_kafka(spark_conn):
             .option('kafka.bootstrap.servers', 'localhost:9092') \
             .option('subscribe', 'daily_stock_prices') \
             .option('startingOffsets', 'earliest') \
-            .load()
+            .load() # this generates key value pairs
         logging.info("kafka dataframe created successfully")
+        
+        # Print to console:
+        spark_df.writeStream \
+            .format('console') \
+            .trigger(processingTime='3 seconds') \
+            .option('numRows', 20) \
+            .start()
+        logging.info("Data from Kafka stream is being printed to the console.")
+
     except Exception as e:
         logging.warning(f"kafka dataframe could not be created because: {e}")
     return spark_df
@@ -78,11 +87,16 @@ def push_to_bigquery(df):
 def write_to_bigquery():
     spark_conn = create_spark_connection()
     if spark_conn is not None:
-        # connect to kafka
-        connect_to_kafka(spark_conn)
-        # sel_df = create_selection_df_from_kafka(df)
-        # push_to_bigquery(df)
-        # return True
+        # Connect to Kafka and get the dataframe
+         connect_to_kafka(spark_conn)
+        
+        # Print the dataframe schema and first few rows
+        # if kafka_df is not None:
+        #     kafka_df.printSchema()
+        #     kafka_df.show()
+        # else:
+        #     logging.warning("No dataframe received from Kafka.")
+
 
 default_args = {
     'owner': 'stocks',
