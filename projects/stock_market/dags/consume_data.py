@@ -25,7 +25,7 @@ def create_spark_connection():
                     "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
             .getOrCreate()
 
-        s_conn.sparkContext.setLogLevel("ERROR")
+        s_conn.sparkContext.setLogLevel("ERROR")  # Set appropriate logging level
         logging.info("Spark connection created successfully!")
     except Exception as e:
         logging.error(f"Couldn't create the spark session due to exception {e}")
@@ -43,19 +43,12 @@ def connect_to_kafka(spark_conn):
             .option('startingOffsets', 'earliest') \
             .load() # this generates key value pairs
         logging.info("kafka dataframe created successfully")
-        
-        # Print to console:
-        spark_df.writeStream \
-            .format('console') \
-            .trigger(processingTime='3 seconds') \
-            .option('numRows', 20) \
-            .start()
-        logging.info("Data from Kafka stream is being printed to the console.")
 
     except Exception as e:
-        logging.warning(f"kafka dataframe could not be created because: {e}")
+        logging.warning(f"kafka dataframe could not be created because: {e}")                                                                                                                                                            
     return spark_df
 
+# Perform transformations
 def create_selection_df_from_kafka(spark_df):
     schema = StructType([
         StructField("Date", DateType(), False),
@@ -69,17 +62,34 @@ def create_selection_df_from_kafka(spark_df):
 
     json_df = spark_df.selectExpr("CAST(value AS STRING)") \
         .select(from_json(col('value'), schema).alias('data')).select("data.*")
-    print(json_df)
-
+    
     return json_df
+
+def print_to_console(df):
+    # Print to console:
+    try:
+        df.writeStream \
+            .format('console') \
+            .trigger(processingTime='3 seconds') \
+            .option('numRows', 20) \
+            .start().awaitTermination()
+        logging.info("Data from Kafka stream is being printed to the console.")
+    except Exception as e:
+        logging.warning("Failed to print to console")
 
 def push_to_bigquery(df):
     try:
-        df.writeStream \
-            .outputMode("append") \
+        streaming_query = df.writeStream \
             .format("bigquery") \
-            .option("table", f"{PROJECT_ID}:{bigquery_dataset}.{bigquery_table}") \
+            .option("project", PROJECT_ID) \
+            .option("dataset", bigquery_dataset) \
+            .option("table", bigquery_table) \
+            .option("checkpointLocation", " /tmp/checkpoint") \
+            .outputMode("append") \
+            .trigger(processingTime="60 seconds") \
             .start()
+        
+        streaming_query.awaitTermination()
         logging.info("Streaming to BigQuery started successfully")
     except Exception as e:
         logging.warning(f"Failed to start streaming to BigQuery: {e}")
@@ -88,15 +98,11 @@ def write_to_bigquery():
     spark_conn = create_spark_connection()
     if spark_conn is not None:
         # Connect to Kafka and get the dataframe
-         connect_to_kafka(spark_conn)
+        df = connect_to_kafka(spark_conn)
+        json_df = create_selection_df_from_kafka(df)
+        # print_to_console(json_df)
         
-        # Print the dataframe schema and first few rows
-        # if kafka_df is not None:
-        #     kafka_df.printSchema()
-        #     kafka_df.show()
-        # else:
-        #     logging.warning("No dataframe received from Kafka.")
-
+        push_to_bigquery(json_df)
 
 default_args = {
     'owner': 'stocks',
@@ -122,3 +128,15 @@ with DAG('consume_stock_data',
     )
 
 task_create_table >> task_to_bq
+
+
+# sink = cleaned_data.writeStream \
+#                  .format("bigquery") \
+#                  .option("project", "my-project-id") \
+#                  .option("dataset", "my_dataset") \
+#                  .option("table", "my_table") \
+#                  .option("checkpointLocation", "/tmp/checkpoint") \
+#                  .start()
+
+# # Wait for termination
+# sink.awaitTermination()
