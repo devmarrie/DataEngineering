@@ -2,3 +2,4 @@ data
 stocks
 credentials
 .env
+logs
