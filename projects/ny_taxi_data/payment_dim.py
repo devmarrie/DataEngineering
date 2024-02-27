@@ -24,6 +24,7 @@ def transform(dest_file, pay_path: str) -> str:
     table = pq.read_table(dest_file)
     df_all = table.to_pandas()
     df = df_all[['payment_type']].copy()
+
     df['payment_method'] = df['payment_type'].map({
         1.0: 'credit card',
         2.0: 'cash',
@@ -33,6 +34,10 @@ def transform(dest_file, pay_path: str) -> str:
         6.0: 'voided trip'
     })  
 
+    # Handle non-finite values (NA or inf) before casting to integer
+    df['payment_type'].fillna(0, inplace=True)
+    df['payment_type'] = df['payment_type'].astype(int)
+    
     df.to_parquet(pay_path, compression='gzip', index=False)  
     return pay_path
 
@@ -62,11 +67,11 @@ dag = DAG(
 months =  [1,2,3,4,5,6,7,8,9,10,11,12]
 
 for month in months:
-    data = f'yellow_tripdata_2020-{month:02}.parquet.gz' 
+    data = f'yellow_tripdata_2020-{month:02}.pq.gz' 
     clean = f'payments_2020-{month:02}.parquet.gz' # change according to dim being created
     bucket_name = 'nytaxi-data-raw-us-east-airflow-dev-clensed'
-    key = f'data/fact_table/{data}' # dependant on the name of the fact
-    dest = f'/home/devmarrie/airflow/data/cl/'
+    key = f'data/Trip_Fact/{data}' # dependant on the name of the fact
+    dest = f'/home/devmarrie/airflow/data/cl/' # clean data
     dest_file = f'{dest}{data}'
     pay_path = f'/home/devmarrie/airflow/data/pay/{clean}' # create the pay path
     clean_key =f'data/payment_dim/{clean}'
