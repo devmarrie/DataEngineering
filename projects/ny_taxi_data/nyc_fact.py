@@ -54,15 +54,16 @@ dag = DAG(
 months = [1,2,3,4,5,6,7,8,9,10,11,12]
 year = 2020
 
+
 for month in months:
     data_file = f'yellow_tripdata_{year}-{month:02}.csv.gz'
     bucket_name = 'nytaxi-data-raw-us-east-airflow-dev'
     key= f'data/yellow/{data_file}'
-    csv_file= 'data/csv_to_pq/'
+    csv_file= '/home/devmarrie/airflow/data/csv_to_pq/'
     csv_path= f'{csv_file}{data_file}'
     pq_file = data_file.replace('.csv', '.pq')
-    pq_path= f'data/pq/{pq_file}'
-    clean_key= f'data/fact_table/{pq_file}'
+    pq_path= f'/home/devmarrie/airflow/data/pq/{pq_file}'
+    clean_key= f'data/Trip_Fact/{pq_file}'
     clean_bucket= 'nytaxi-data-raw-us-east-airflow-dev-clensed'
 
 
@@ -88,7 +89,7 @@ for month in months:
         task_id=f'upload_to_clean_{month}',
         python_callable=load_to_s3,
         op_kwargs= {
-            'filename': pq_path,
+            'pq_path': pq_path,
             'key': clean_key,
             'bucket_name': clean_bucket
         },
