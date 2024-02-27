@@ -29,28 +29,29 @@ dag = DAG(
 )
 
 year = 2020
-month = 1
-data_file = f'yellow_tripdata_{year}-{month:02}.csv.gz'
-local_path = f'/home/devmarrie/airflow/data/csv/{data_file}'
-url = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/{data_file}'
-bucket_name = 'nytaxi-data-raw-us-east-airflow-dev'
-key = f'data/yellow/{data_file}'
+months = [1,2,3,4,5,6,7,8,9,10,11,12]
+for month in months:
+    data_file = f'yellow_tripdata_{year}-{month:02}.csv.gz'
+    local_path = f'/home/devmarrie/airflow/data/csv/{data_file}'
+    url = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/{data_file}'
+    bucket_name = 'nytaxi-data-raw-us-east-airflow-dev'
+    key = f'data/yellow/{data_file}'
 
-task_read_from_source = BashOperator(
-    task_id=f'read_from_source',
-    bash_command=f'curl -sSL {url} -o {local_path} && echo "Download successful!" || echo "Download failed"',
-    dag=dag
+    task_read_from_source = BashOperator(
+        task_id=f'read_from_source_{month}',
+        bash_command=f'curl -sSL {url} -o {local_path} && echo "Download successful!" || echo "Download failed"',
+        dag=dag
+        )
+
+    task_load_to_s3 = PythonOperator(
+        task_id=f'load_the_csv_{month}',
+        python_callable=load,
+        op_kwargs={
+            'local_path': local_path,
+            'key': key,
+            'bucket_name': bucket_name
+        },
+        dag=dag
     )
 
-task_load_to_s3 = PythonOperator(
-    task_id='load_the_csv',
-    python_callable=load,
-    op_kwargs={
-        'local_path': local_path,
-        'key': key,
-        'bucket_name': bucket_name
-    },
-    dag=dag
-)
-
-task_read_from_source >> task_load_to_s3
+    task_read_from_source >> task_load_to_s3
