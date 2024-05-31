@@ -60,7 +60,7 @@ def scrape_carrefour_products(base_url, file_name):
 if __name__ == "__main__":
     # Base URL
     base_url ='https://www.carrefour.ke/mafken/en/c/FKEN1760000?filter=&pageSize=60&sortBy=relevance'
-    file_name = 'food_cupboard.csv'
+    file_name = 'data/food_cupboard.csv'
     driver = webdriver.Chrome()
 
     scrape_carrefour_products(base_url, file_name)
