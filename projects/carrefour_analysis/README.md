@@ -26,3 +26,6 @@ driver.quit()
 ```
 
 Version 124.0.6367.201 (Official Build) (64-bit)   
+
+### Convert a notebook to a python script
+jupyter nbconvert --to script your_notebook.ipynb --output my_script.py
