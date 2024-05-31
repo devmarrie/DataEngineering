@@ -15,7 +15,7 @@ def scrape_carrefour_products(base_url, file_name):
     # Prepare to write to csv
     with open(full_file, mode='w', newline='', encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(['ProductName', 'OriginalPrice', 'ApplicablePrice', 'Type', 'Discount', 'Category']) # header
+        writer.writerow(['ProductName', 'OriginalPrice', 'ApplicablePrice', 'Type', 'PercentageDiscount', 'Category']) # header
 
         while True:
             url = f"{base_url}&currentPage={current_page}"
@@ -46,9 +46,9 @@ def scrape_carrefour_products(base_url, file_name):
                         OriginalPrice = product['originalPrice']
                         ApplicablePrice = product['applicablePrice']
                         Type = product['type']
-                        Discount = f"{product['discount']['value']}%"
+                        PercentageDiscount = f"{product['discount']['value']}"
                         Category = file_name.split('.csv')[0]
-                        writer.writerow([ProductName, OriginalPrice, ApplicablePrice, Type, Discount, Category]) # add the row to the csv file.
+                        writer.writerow([ProductName, OriginalPrice, ApplicablePrice, Type, PercentageDiscount, Category]) # add the row to the csv file.
                         
                 #This is where the trick is , we add a page after finding the products not outside
                 current_page += 1
