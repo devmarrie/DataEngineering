@@ -3,17 +3,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import requests
 import json
 import time
 import csv
 
 def scrape_carrefour_products(base_url, file_name):
     current_page = 0
+    full_file = f'data/{file_name}'
 
     # Prepare to write to csv
-    with open(file_name, mode='w', newline='', encoding="utf-8") as f:
+    with open(full_file, mode='w', newline='', encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(['ProductName', 'OriginalPrice', 'ApplicablePrice', 'Type', 'Discount']) # header
+        writer.writerow(['ProductName', 'OriginalPrice', 'ApplicablePrice', 'Type', 'Discount', 'Category']) # header
 
         while True:
             url = f"{base_url}&currentPage={current_page}"
@@ -45,7 +47,8 @@ def scrape_carrefour_products(base_url, file_name):
                         ApplicablePrice = product['applicablePrice']
                         Type = product['type']
                         Discount = f"{product['discount']['value']}%"
-                        writer.writerow([ProductName, OriginalPrice, ApplicablePrice, Type, Discount]) # add the row to the csv file.
+                        Category = file_name.split('.csv')[0]
+                        writer.writerow([ProductName, OriginalPrice, ApplicablePrice, Type, Discount, Category]) # add the row to the csv file.
                         
                 #This is where the trick is , we add a page after finding the products not outside
                 current_page += 1
@@ -60,7 +63,7 @@ def scrape_carrefour_products(base_url, file_name):
 if __name__ == "__main__":
     # Base URL
     base_url ='https://www.carrefour.ke/mafken/en/c/FKEN1760000?filter=&pageSize=60&sortBy=relevance'
-    file_name = 'data/food_cupboard.csv'
+    file_name = 'food_cupboard.csv'
     driver = webdriver.Chrome()
 
     scrape_carrefour_products(base_url, file_name)
