@@ -19,7 +19,7 @@ spark = SparkSession.builder \
 schema = types.StructType([
             types.StructField('ProductName', types.StringType(), True), 
             types.StructField('OriginalPrice', types.LongType(), True), 
-            types.StructField('ApplicablePrice', types.LongType(), True), 
+            types.StructField('ApplicablePrice', types.DoubleType(), True), 
             types.StructField('Type', types.StringType(), True), 
             types.StructField('PercentageDiscount', types.LongType(), True), 
             types.StructField('Category', types.StringType(), True)
@@ -39,7 +39,7 @@ for filename in os.listdir(data_dir):
 
         # write to a parquet file mode append to include all
         df.write.mode('append').parquet('data/pq/all_foods')
-
+df.show()
 print("Schema change successful now closing")
 
 # Stop Spark session
