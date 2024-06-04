@@ -2,3 +2,4 @@ c4
 *.csv
 data
 imgs
+.env
