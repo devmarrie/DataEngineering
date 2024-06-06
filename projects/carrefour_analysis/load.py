@@ -1,8 +1,6 @@
 import logging
-import boto3
 import os
 from dotenv import load_dotenv
-from botocore.exceptions import ClientError
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 from pyspark.sql.functions import min, max, avg, stddev
@@ -83,18 +81,7 @@ def top_cheap(df, bucket_name, save_path):
         logging.info(f'Data successfully written to s3a://{bucket_name}/{save_path}')
     except Exception as e:
         logging.error(f'Failed to write data to S3: {e}')
-                      
-def create_bucket(bucket_name, region):
-    try:
-        s3_client = boto3.client('s3')
-        location = {'LocationConstraint': region}
-        s3_client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
-    except ClientError as e:
-        logging.error(e)
-
-    return f'{bucket_name} created successfully'
-
-
+                
 if __name__ == '__main__':
     # .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.4.0,com.amazonaws:aws-java-sdk-bundle:1.12.734") \
     jars = "jar_files/aws-java-sdk-bundle-1.11.1026.jar, jar_files/hadoop-aws-3.3.2.jar"       
@@ -115,9 +102,8 @@ if __name__ == '__main__':
     hadoop_conf.set("fs.s3a.path.style.access", "true")
     
     df = spark.read.parquet('data/pq/all_foods')
-    bucket_name = 'c4-load'
+    bucket_name = 'c4-analysed'
 
-    # create_bucket(bucket_name, 'af-south-1')
     avg_dis_to_s3(df, bucket_name, 'avg-discount.parquet')
     highest_dis(df, bucket_name, 'highest_discounted_product.parquet')
     lowest_dis(df, bucket_name, 'lowest_discounted_product.parquet')
