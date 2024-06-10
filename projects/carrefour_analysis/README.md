@@ -1,5 +1,16 @@
-## Analysing the carrefour webste.
+## Analysing the carrefour webste using spark
+
 Helping customers save money and make well informed decisions when purchacing from the courefour website.
+
+Carrefour is an online supermarket which has been trending alot on Kenyan media beit television or social media platforms. Not a day went by without me seeing the ad "Amaizing offers!! Unbeatable Offers!! crazy offers!!" on television. Oughting to take advantage of the situation and throw my data engneering prowess into it, I decide to find out what a customer of carrefour like me would benefit from analysing the data.
+
+Carrefour is an online supermarket where you can purchase anything and it be delivered to your desired destination. Be it foodstuffs, electronics or basically anything and everything you might find in  a supermarket. (link) As a customer looking at this website, desiring to take advantage of the offers, especially on the goods I really want to purchase, while not having enough time to peruse all the pages in the website, I opted on scraping the data and figuring out apart from the said deals, what else can I take advantage of while making a purchase?
+
+
+### Architecture
+
+### Extracting data from the website
+Being a dynamic website made it alittle bit challanging for me to find the data and scrape the website. However with the help of python packages like Selenium, I was able to adequately scrape the website. Here is a post where I shared more about scraping both dynamic and basic websites. 
 
 **Benefits of Using Selenium:**
 
@@ -25,11 +36,15 @@ driver.quit()
 
 ```
 
-Version 124.0.6367.201 (Official Build) (64-bit)   
+Scraping code explained
 
-### Convert a notebook to a python script
+**Convert a notebook to a python script**
 jupyter nbconvert --to script your_notebook.ipynb --output my_script.py
+### Transform the data and load it to one parquet table
+### Analyse the data using spark
+### Visualise the data
 
+### Loading the data to s3 instead of local
 Here are the dependencies you need for integrating Spark with AWS S3, along with their versions compatible with Hadoop 3.3.2:
 
 Jar packages for hadoop-aws https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws/3.3.2 
