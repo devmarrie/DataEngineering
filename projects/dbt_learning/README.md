@@ -13,16 +13,18 @@ Install the dbt power user and python extensions
 pip install dbt-bigquery
 make a dbt folder in the user home directory ie mkdir $home\.dbt
 initialise your first project using `dbt init` and follow the prompts.
-dbt debug to confirm the connection
+`dbt debug` to confirm the connection
+Check `dbt build` - builds up the whole project
 
-The macros folder contains sql queries used to perform transformaions on your data
+## Dbt Models
+The models folder contains sql queries used to perform transformaions on your data
 To run various queries therefore you need to understand sql and ctes for dbt uses this mostly to create queries.
 Once you are done creating your query in an sql file run `dbt run` on the terminal.
 
 If the execution is successful you will see a view of the model created in the warehouse you are using. You can change the view to a table in the .yaml file if you want(ie the file containing all the dbt configuration)
 
 **Modularity** breaking down a complex model with various lines of sql queries into smaller models then joining them to one. This increases reusability, maintainability, testing and readability. Save the small modules with a `_stg` to be able to differentiate them from the main one eg **customer_stg.sql**. Note we make the consious decision to materialise them as views since they contain minor transformation which are executed at runtime and do not occupy additional storage. Our main file however will still be saved as a table since it contains intensive transformations.
-After creating the modules we reffer to them as `{{ref customer_stg.sql}} cu the same way we shall reffer another table that we are joining.
+After creating the modules we reffer to them as `{{ref customer_stg}}` the same way we shall reffer another table that we are joining.
 
 Note other macros that we are creating eg an **orders_fact.sql** which is totally not related to the customer but we need it for joining we still materialise it as a table and attach a fact to its name as shown. 
 
@@ -31,7 +33,7 @@ So all the above we can join them as a table called **customer_revenue.sql** Whi
 We can manipulate this function by changing our .yaml models option
 
 ### Seeds 
-csv files that can be easily loaded into dbt using the `dbt seeds ` command. They are particularly useful when working with static data that is relatively small. Create a seeds folder and paste the csv file in it thats it!! Now issue the `dbt seed` command and when it runs successfully check if the table is created in your warehouse. The seed file using the ref function and the file name without csv. NOte not the whole path just its name.
+csv files that can be easily loaded into dbt using the `dbt seeds ` command. They are particularly useful when working with static data that is relatively small. Create a seeds folder and paste the csv file in it thats it!! Now issue the `dbt seed` command and when it runs successfully check if the table is created in your warehouse. The seed file using the ref function and the file name without csv. Note not the whole path just its name.
 
 ### Analysis folder
 Allows us to create SQL files just like the models folder.
@@ -42,7 +44,7 @@ The queries here or files are compiled which enables us to validate the code inc
 The `dbt compile` command will compile the sql file. Running the `dbt run` command will run the query but it will not be materialised in the data warehouse as a table or a view.
 
 ### Sources
-Enables us to change the source table name of our existing data if need be. CChecking the models, each file refferences a spesific tablein its queries, to change that table we use sources and create a .yaml file in the models folder and add the sorce of your data. In the sql file you can now refference it using `{{ source('name', 'table_name')}}`
+Enables us to change the source table name of our existing data if need be. Checking the models, each file refferences a spesific table in its queries, to change that table we use sources and create a .yaml file in the models folder and add the source of your data. In the sql file you can now refference it using `{{ source('name', 'table_name')}}`
 
 
 ### Tests
@@ -70,7 +72,7 @@ Add descriptios to yaml files to increase the documentation process. Add a descr
 Another way is to use doc blocks in the models folder eg `custdocs.md` 
 Then write:
 
-{% dosc StatusDoc %}
+{% docs StatusDoc %}
 
 Whatever you want to document
 {% enddocs %}
