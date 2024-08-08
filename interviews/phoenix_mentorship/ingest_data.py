@@ -1,5 +1,5 @@
 import psycopg2
-import pandas
+import pandas as pd
 
 host = 'aws-0-sa-east-1.pooler.supabase.com'
 database_name = 'postgres'
@@ -23,12 +23,14 @@ try:
     data = cursor.fetchall()
 
     # check the output
-    count = 0
-    for row in data:
-        if count <= 10:
-            print(row)
-            count += 1
+    # count = 0
+    # for row in data:
+    #     if count <= 10:
+    #         print(row)
+    #         count += 1
 
+    df = pd.DataFrame(data, columns=[d[0] for d in cursor.description])
+    print(df.head())
 except Exception as e:
     print(f'Error:{e}')
 finally:
