@@ -31,3 +31,8 @@ try:
 
 except Exception as e:
     print(f'Error:{e}')
+finally:
+    if cursor:
+        cursor.close()
+    if connection:
+        connection.close()
