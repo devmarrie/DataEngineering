@@ -30,7 +30,8 @@ try:
     #         count += 1
 
     df = pd.DataFrame(data, columns=[d[0] for d in cursor.description])
-    print(df.head())
+    # print(df.head())
+    df.to_csv('data/agric_data.csv')
 except Exception as e:
     print(f'Error:{e}')
 finally:
