@@ -9,7 +9,7 @@ df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
 
 # Remove empty columns (classifications, grade,sex) since most of them dont have data so it wount help much in analysis.
  
-df.drop(columns=['classification', 'grade', 'sex'], inplace=True)
+df.drop(columns=['id','classification', 'grade', 'sex'], inplace=True)
 
 # check for null values and remove
 # Replace all - with null for concistency
@@ -29,6 +29,14 @@ df.fillna(0.0, inplace=True)
 
 # check for duplicate and remove if any
 print(df.duplicated().sum())
-df.to_csv('data/clean/cleaned_agric_data', index=False)
+all_duplicates = df[df.duplicated(keep=False)]
+# print(all_duplicates)
+
+df_clean = df.drop_duplicates(keep='first')
+print(df_clean.duplicated().sum())
+
+# Store
+print(df_clean)
+df_clean.to_csv('data/clean/cleaned_agric_data.csv', index=False)
 
 
