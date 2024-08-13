@@ -37,6 +37,7 @@ print(df_clean.duplicated().sum())
 
 # Store
 print(df_clean)
+print(df_clean.dtypes)
 df_clean.to_csv('data/clean/cleaned_agric_data.csv', index=False)
 
 
