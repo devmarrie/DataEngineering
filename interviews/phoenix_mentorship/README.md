@@ -1,5 +1,8 @@
 ## ETL pipleine for Agriculture data
 ![architecture_img](img/phoenix_img.png)
+
+
+
 Extract from a remote postgresDB,
 Ingest it  locally as shown [here](load_data.py).
 
