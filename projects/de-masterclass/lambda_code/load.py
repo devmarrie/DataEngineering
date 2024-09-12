@@ -1,21 +1,27 @@
 import json
 import os
 import pandas as pd
+import numpy as np
 import psycopg2
 import s3_file_operations as s3_ops
 
-rds_host = "ricknmorty*****.eu-west-1.rds.amazonaws.com"
-rds_username = "postgres"
-rds_user_pwd = "******"
-rds_db_name = "rick_and_morty"
+rds_host = "********eu-west-1.rds.amazonaws.com" #rds endpoint
+rds_username = "postgres" # rds
+rds_user_pwd ="******" #from rds
+rds_db_name = "*****" #create a db in pgadmin and put it here
 bucket_name = "******"   # Replace with your s3 Bucket name
 
 def insert_data(cursor, conn, df, table_name):
     column_names = list(df.columns)
+    
+    # Convert all numpy types to native Python types
+    df = df.astype(object).where(pd.notnull(df), None)  # Replace NaN with None
+    
     for i, row in df.iterrows():
         placeholders = ','.join(['%s'] * len(column_names))
         sql_insert = f"INSERT INTO {table_name} ({','.join(column_names)}) VALUES ({placeholders});"
-        data = tuple(row[column] for column in column_names)
+        # Convert numpy.int64 to int and numpy.float64 to float before inserting
+        data = tuple(row[column].item() if isinstance(row[column], (np.int64, np.float64)) else row[column] for column in column_names)
         cursor.execute(sql_insert, data)
         conn.commit()
 
@@ -50,7 +56,7 @@ def lambda_handler(event, context):
             location_id VARCHAR(255),
             image VARCHAR(255),
             url VARCHAR(255),
-            created_at TIMESTAMPTZ
+            created TIMESTAMPTZ
         );
     """
 
@@ -61,7 +67,7 @@ def lambda_handler(event, context):
             air_date VARCHAR(255),
             episode VARCHAR(255),
             url VARCHAR(255),
-            created_at TIMESTAMPTZ
+            created TIMESTAMPTZ
         );
     """
 
@@ -80,7 +86,7 @@ def lambda_handler(event, context):
             type VARCHAR(255),
             dimension VARCHAR(255),
             url VARCHAR(255),
-            created_at TIMESTAMPTZ
+            created TIMESTAMPTZ
         );
     """
 
